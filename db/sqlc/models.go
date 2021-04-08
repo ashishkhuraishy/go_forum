@@ -20,7 +20,7 @@ type Post struct {
 	ID        int32     `json:"id"`
 	UserID    int32     `json:"user_id"`
 	Title     string    `json:"title"`
-	Desc      string    `json:"desc"`
+	Descr     string    `json:"descr"`
 	CreatedAt time.Time `json:"created_at"`
 }
 

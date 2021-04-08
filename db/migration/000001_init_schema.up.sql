@@ -8,7 +8,7 @@ CREATE TABLE "posts" (
   "id" SERIAL PRIMARY KEY,
   "user_id" int NOT NULL,
   "title" varchar NOT NULL,
-  "desc" varchar NOT NULL,
+  "descr" varchar NOT NULL,
   "created_at" timestamptz NOT NULL DEFAULT (now())
 );
 
