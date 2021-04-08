@@ -7,12 +7,16 @@ RETURNING *;
 SELECT * FROM users
 WHERE id = $1;
 
+-- name: ListUsers :many
+SELECT * FROM users
+ORDER BY id;
 
--- name: UpdateUser :exec
+-- name: UpdateUser :one
 UPDATE users 
 SET full_name = $2
-WHERE id = $1;
+WHERE id = $1 
+RETURNING *;
 
 -- name: DeleteUser :exec
-DELETE FROM authors 
+DELETE FROM users 
 WHERE id = $1;
