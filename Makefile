@@ -13,7 +13,16 @@ migrateup:
 migratedown:
 	migrate -path db/migration -database "postgresql://root:secret@localhost:5432/go_forum?sslmode=disable" -verbose down
 
+dropschema:
+	migrate -path db/migration -database "postgresql://root:secret@localhost:5432/go_forum?sslmode=disable" -verbose drop
+
+newmigration:
+	migrate create -ext sql -dir db/migration -seq $(file_name)
+
 sqlc:
 	sqlc generate
 
-.PHONY: startpostgres createdb dropdb migrateup migratedown sqlc
+test:
+	go test -v -cover ./...
+
+.PHONY: startpostgres createdb dropdb migrateup migratedown dropschema newmigration sqlc test

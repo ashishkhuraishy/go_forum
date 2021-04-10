@@ -7,7 +7,13 @@ INSERT INTO likes (
 RETURNING *;
 
 -- name: CountPostLikes :one
-SELECT count(*) FROM likes 
+SELECT SUM(
+    CASE 
+    WHEN liked 
+    THEN 1 ELSE -1 
+    END
+)
+FROM likes
 WHERE post_id = $1;
 
 -- name: GetLikeInfo :one

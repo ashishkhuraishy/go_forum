@@ -1,0 +1,1 @@
+ALTER TABLE "likes" DROP CONSTRAINT "post_user_unique";

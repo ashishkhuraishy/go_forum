@@ -36,15 +36,21 @@ func (q *Queries) AddLike(ctx context.Context, arg AddLikeParams) (Like, error) 
 }
 
 const countPostLikes = `-- name: CountPostLikes :one
-SELECT count(*) FROM likes 
+SELECT SUM(
+    CASE 
+    WHEN liked 
+    THEN 1 ELSE -1 
+    END
+)
+FROM likes
 WHERE post_id = $1
 `
 
 func (q *Queries) CountPostLikes(ctx context.Context, postID int32) (int64, error) {
 	row := q.db.QueryRowContext(ctx, countPostLikes, postID)
-	var count int64
-	err := row.Scan(&count)
-	return count, err
+	var sum int64
+	err := row.Scan(&sum)
+	return sum, err
 }
 
 const deleteLike = `-- name: DeleteLike :exec
