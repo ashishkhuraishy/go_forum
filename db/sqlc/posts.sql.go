@@ -65,7 +65,7 @@ func (q *Queries) GetPost(ctx context.Context, id int32) (Post, error) {
 
 const listPosts = `-- name: ListPosts :many
 SELECT id, user_id, title, descr, created_at FROM posts
-ORDER BY id
+ORDER BY created_at DESC
 LIMIT $1
 OFFSET $2
 `
@@ -107,6 +107,7 @@ func (q *Queries) ListPosts(ctx context.Context, arg ListPostsParams) ([]Post, e
 const listPostsFromUser = `-- name: ListPostsFromUser :many
 SELECT id, user_id, title, descr, created_at FROM posts
 WHERE user_id = $1
+ORDER BY created_at DESC
 LIMIT $2
 OFFSET $3
 `

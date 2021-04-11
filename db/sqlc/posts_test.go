@@ -72,6 +72,11 @@ func TestListPosts(t *testing.T) {
 	require.NoError(t, err)
 	require.Len(t, posts, 5)
 
+	// Check the id of first element is greater than the second one
+	// This is to make sure that the returned posts is sorted in
+	// descending order
+	require.Greater(t, posts[0].ID, posts[1].ID)
+
 	for _, post := range posts {
 		// Check the available users are empty
 		require.NotEmpty(t, post)
@@ -102,6 +107,11 @@ func TestListPostsFromUser(t *testing.T) {
 
 	require.NoError(t, err)
 	require.Len(t, posts, 5)
+
+	// Check the id of first element is greater than the second one
+	// This is to make sure that the returned posts is sorted in
+	// descending order
+	require.Greater(t, posts[0].ID, posts[1].ID)
 
 	for _, post := range posts {
 		// Check the available users are empty
