@@ -96,6 +96,7 @@ func (q *Queries) GetLikeInfo(ctx context.Context, arg GetLikeInfoParams) (Like,
 const listLikesOfUser = `-- name: ListLikesOfUser :many
 SELECT id, user_id, post_id, liked, liked_at FROM likes
 WHERE user_id = $1
+AND liked = true
 ORDER BY id
 `
 

@@ -24,6 +24,7 @@ AND post_id = $2;
 -- name: ListLikesOfUser :many
 SELECT * FROM likes
 WHERE user_id = $1
+AND liked = true
 ORDER BY id;
 
 -- name: UpdateLike :one
