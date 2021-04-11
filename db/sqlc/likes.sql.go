@@ -106,7 +106,7 @@ func (q *Queries) ListLikesOfUser(ctx context.Context, userID int32) ([]Like, er
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Like
+	items := []Like{}
 	for rows.Next() {
 		var i Like
 		if err := rows.Scan(

@@ -81,7 +81,7 @@ func (q *Queries) ListPosts(ctx context.Context, arg ListPostsParams) ([]Post, e
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Post
+	items := []Post{}
 	for rows.Next() {
 		var i Post
 		if err := rows.Scan(
@@ -124,7 +124,7 @@ func (q *Queries) ListPostsFromUser(ctx context.Context, arg ListPostsFromUserPa
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Post
+	items := []Post{}
 	for rows.Next() {
 		var i Post
 		if err := rows.Scan(
