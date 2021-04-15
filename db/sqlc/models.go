@@ -3,29 +3,32 @@
 package db
 
 import (
-	"database/sql"
 	"time"
 )
-
-type Like struct {
-	ID     int32 `json:"id"`
-	UserID int32 `json:"user_id"`
-	PostID int32 `json:"post_id"`
-	// true if liked and false if disliked. No rows if no response
-	Liked   bool         `json:"liked"`
-	LikedAt sql.NullTime `json:"liked_at"`
-}
 
 type Post struct {
 	ID        int32     `json:"id"`
 	UserID    int32     `json:"user_id"`
 	Title     string    `json:"title"`
-	Descr     string    `json:"descr"`
+	Content   string    `json:"content"`
+	Votes     int32     `json:"votes"`
+	UpdatedAt time.Time `json:"updated_at"`
 	CreatedAt time.Time `json:"created_at"`
 }
 
 type User struct {
 	ID        int32     `json:"id"`
-	FullName  string    `json:"full_name"`
+	Username  string    `json:"username"`
+	Email     string    `json:"email"`
+	Password  string    `json:"password"`
+	UpdatedAt time.Time `json:"updated_at"`
 	CreatedAt time.Time `json:"created_at"`
+}
+
+type Vote struct {
+	ID     int32 `json:"id"`
+	UserID int32 `json:"user_id"`
+	PostID int32 `json:"post_id"`
+	// true if liked and false if disliked. No rows if no response
+	Voted bool `json:"voted"`
 }

@@ -9,45 +9,44 @@ import (
 )
 
 const (
-	DUPLICATE_LIKE_ERROR = "pq: duplicate key value violates unique constraint \"post_user_unique\""
+	DUPLICATE_LIKE_ERROR = "pq: duplicate key value violates unique constraint \"user_post_index\""
 )
 
-func createRandomLike(t *testing.T) Like {
+func createRandomVote(t *testing.T) Vote {
 	post := createRandomPost(t, 0)
-	liked := true
-	args := AddLikeParams{
+	voted := true
+	args := AddVoteParams{
 		UserID: post.UserID,
 		PostID: post.ID,
-		Liked:  liked,
+		Voted:  voted,
 	}
 
-	like, err := testQueries.AddLike(context.Background(), args)
+	like, err := testQueries.AddVote(context.Background(), args)
 
 	require.NoError(t, err)
 	require.NotEmpty(t, like)
 
 	require.NotZero(t, like.ID)
-	require.NotZero(t, like.LikedAt)
 
 	require.Equal(t, post.ID, like.PostID)
 	require.Equal(t, post.UserID, like.UserID)
-	require.Equal(t, args.Liked, like.Liked)
+	require.Equal(t, args.Voted, like.Voted)
 
 	return like
 }
 
-func TestAddLike(t *testing.T) {
-	like := createRandomLike(t)
+func TestAddVote(t *testing.T) {
+	like := createRandomVote(t)
 
 	// Should throw error if a like with the same userID
 	// and postID exists
-	args := AddLikeParams{
+	args := AddVoteParams{
 		UserID: like.UserID,
 		PostID: like.PostID,
-		Liked:  true,
+		Voted:  true,
 	}
 
-	like1, err := testQueries.AddLike(context.Background(), args)
+	like1, err := testQueries.AddVote(context.Background(), args)
 
 	require.Empty(t, like1)
 	require.Error(t, err)
@@ -56,90 +55,88 @@ func TestAddLike(t *testing.T) {
 
 }
 
-func TestGetLike(t *testing.T) {
-	like := createRandomLike(t)
+func TestGetVote(t *testing.T) {
+	like := createRandomVote(t)
 
 	// CASE 1
 	// Check for a post with a userId which actually liked
 	// the post, which should return valid data
-	args := GetLikeInfoParams{
+	args := GetVoteInfoParams{
 		UserID: like.UserID,
 		PostID: like.PostID,
 	}
 
-	like1, err := testQueries.GetLikeInfo(context.Background(), args)
+	like1, err := testQueries.GetVoteInfo(context.Background(), args)
 	require.NoError(t, err)
 	require.NotEmpty(t, like1)
 
 	require.Equal(t, like.ID, like1.ID)
-	require.Equal(t, like.Liked, like1.Liked)
-	require.Equal(t, like.LikedAt, like1.LikedAt)
+	require.Equal(t, like.Voted, like1.Voted)
 	require.Equal(t, like.PostID, like1.PostID)
 	require.Equal(t, like.UserID, like1.UserID)
 
 	// CASE 2
 	// Check with a user who hasnt liked the post yet
 	user := createRandomUser(t)
-	arg2 := GetLikeInfoParams{
+	arg2 := GetVoteInfoParams{
 		UserID: user.ID,
 		PostID: like.PostID,
 	}
 
 	// If a userId who is not liked is queried, then
 	// the db should return no rows error
-	like2, err := testQueries.GetLikeInfo(context.Background(), arg2)
+	like2, err := testQueries.GetVoteInfo(context.Background(), arg2)
 	require.Empty(t, like2)
 	require.Error(t, err)
 	require.EqualError(t, err, sql.ErrNoRows.Error())
 
 }
 
-func TestUpdateLike(t *testing.T) {
-	like := createRandomLike(t)
+func TestUpdateVote(t *testing.T) {
+	like := createRandomVote(t)
 
-	args := UpdateLikeParams{
+	args := UpdateVoteParams{
 		PostID: like.PostID,
 		UserID: like.UserID,
-		Liked:  !like.Liked,
+		Voted:  !like.Voted,
 	}
 
-	like1, err := testQueries.UpdateLike(context.Background(), args)
+	like1, err := testQueries.UpdateVote(context.Background(), args)
 
 	require.NoError(t, err)
 	require.NotEmpty(t, like1)
 
 	require.Equal(t, like.ID, like1.ID)
-	require.Equal(t, like.LikedAt, like1.LikedAt)
 	require.Equal(t, like.PostID, like1.PostID)
 	require.Equal(t, like.UserID, like1.UserID)
 
-	require.Equal(t, args.Liked, like1.Liked)
+	require.Equal(t, args.Voted, like1.Voted)
 }
 
-func TestDeleteLike(t *testing.T) {
-	like := createRandomLike(t)
+func TestDeleteVote(t *testing.T) {
+	like := createRandomVote(t)
 
-	args := DeleteLikeParams{
+	args := DeleteVoteParams{
 		PostID: like.PostID,
 		UserID: like.UserID,
 	}
 
-	err := testQueries.DeleteLike(context.Background(), args)
+	err := testQueries.DeleteVote(context.Background(), args)
 	require.NoError(t, err)
 
-	arg1 := GetLikeInfoParams{
+	arg1 := GetVoteInfoParams{
 		UserID: like.UserID,
 		PostID: like.PostID,
 	}
 
-	like1, err := testQueries.GetLikeInfo(context.Background(), arg1)
+	like1, err := testQueries.GetVoteInfo(context.Background(), arg1)
 
 	require.Error(t, err)
 	require.Empty(t, like1)
 	require.EqualError(t, err, sql.ErrNoRows.Error())
 }
 
-func TestListLikesOfUser(t *testing.T) {
+func TestListVotesOfUser(t *testing.T) {
 	// Create a user and add likes of that user
 	// to random posts
 	user := createRandomUser(t)
@@ -148,18 +145,18 @@ func TestListLikesOfUser(t *testing.T) {
 	// then dislikes 5 posts.
 	for i := 0; i < 10; i++ {
 		post := createRandomPost(t, 0)
-		args := AddLikeParams{
+		args := AddVoteParams{
 			UserID: user.ID,
 			PostID: post.ID,
-			Liked:  i%2 == 0,
+			Voted:  i%2 == 0,
 		}
 
-		// Beacuse we already tested this fn [TestAddLike], we will skip
+		// Beacuse we already tested this fn [TestAddVote], we will skip
 		// the return value of these
-		testQueries.AddLike(context.Background(), args)
+		testQueries.AddVote(context.Background(), args)
 	}
 
-	likes, err := testQueries.ListLikesOfUser(context.Background(), user.ID)
+	likes, err := testQueries.ListVotesOfUser(context.Background(), user.ID)
 
 	// We created 10 likes from the user and 5 of
 	// them have a status of `liked = true`. our fn
@@ -174,12 +171,12 @@ func TestListLikesOfUser(t *testing.T) {
 		// one of them
 		require.NotEmpty(t, like)
 		require.Equal(t, user.ID, like.UserID)
-		require.Equal(t, true, like.Liked)
+		require.Equal(t, true, like.Voted)
 	}
 
 }
 
-func TestCountPostLikes(t *testing.T) {
+func TestCountPostVotes(t *testing.T) {
 	// Create a random post and lets generated
 	// random users like this post
 	post := createRandomPost(t, 0)
@@ -190,17 +187,17 @@ func TestCountPostLikes(t *testing.T) {
 	for i := 0; i < 10; i++ {
 		user := createRandomUser(t)
 
-		args := AddLikeParams{
+		args := AddVoteParams{
 			UserID: user.ID,
 			PostID: post.ID,
-			Liked:  i%2 == 0,
+			Voted:  i%2 == 0,
 		}
 
 		// Already tested this fn... dont mind the return
-		testQueries.AddLike(context.Background(), args)
+		testQueries.AddVote(context.Background(), args)
 	}
 
-	count, err := testQueries.CountPostLikes(context.Background(), post.ID)
+	count, err := testQueries.CountVotesOfPost(context.Background(), post.ID)
 
 	// We liked the post by 5 users and disliked by 5
 	// Our count luke should return a diffeence between

@@ -65,12 +65,12 @@ func (s *Store) GetFeeds(ctx context.Context, params ListPostsParams) ([]Feed, e
 				return err
 			}
 
-			votes, err := s.Queries.CountPostLikes(context.Background(), post.ID)
+			votes, err := s.Queries.CountVotesOfPost(context.Background(), post.ID)
 			if err != nil {
 				return nil
 			}
 
-			feed.UserName = user.FullName
+			feed.UserName = user.Username
 			feed.Votes = votes
 
 			feeds = append(feeds, feed)

@@ -15,9 +15,9 @@ func createRandomPost(t *testing.T, userID int32) Post {
 		userID = user.ID
 	}
 	args := CreatePostParams{
-		UserID: userID,
-		Title:  utils.RandomString(5),
-		Descr:  utils.RandomString(30),
+		UserID:  userID,
+		Title:   utils.RandomString(5),
+		Content: utils.RandomString(30),
 	}
 
 	post, err := testQueries.CreatePost(context.Background(), args)
@@ -30,7 +30,7 @@ func createRandomPost(t *testing.T, userID int32) Post {
 
 	require.Equal(t, userID, post.UserID)
 	require.Equal(t, args.Title, post.Title)
-	require.Equal(t, args.Descr, post.Descr)
+	require.Equal(t, args.Content, post.Content)
 
 	return post
 }
@@ -48,7 +48,7 @@ func TestGetPost(t *testing.T) {
 
 	require.Equal(t, post1.ID, post2.ID)
 	require.Equal(t, post1.Title, post2.Title)
-	require.Equal(t, post1.Descr, post2.Descr)
+	require.Equal(t, post1.Content, post2.Content)
 	require.Equal(t, post1.UserID, post2.UserID)
 	require.Equal(t, post1.CreatedAt, post2.CreatedAt)
 }
@@ -123,9 +123,9 @@ func TestListPostsFromUser(t *testing.T) {
 func TestUpdatePost(t *testing.T) {
 	post := createRandomPost(t, 0)
 	args := UpdatePostParams{
-		ID:    post.ID,
-		Title: utils.RandomString(5),
-		Descr: utils.RandomString(100),
+		ID:      post.ID,
+		Title:   utils.RandomString(5),
+		Content: utils.RandomString(100),
 	}
 
 	post2, err := testQueries.UpdatePost(context.Background(), args)
@@ -135,7 +135,7 @@ func TestUpdatePost(t *testing.T) {
 
 	require.Equal(t, post.ID, post2.ID)
 	require.Equal(t, args.Title, post2.Title)
-	require.Equal(t, args.Descr, post2.Descr)
+	require.Equal(t, args.Content, post2.Content)
 	require.Equal(t, post.UserID, post2.UserID)
 	require.Equal(t, post.CreatedAt, post2.CreatedAt)
 }

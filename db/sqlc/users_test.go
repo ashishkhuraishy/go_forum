@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"testing"
+	"time"
 
 	"github.com/ashishkhuraishy/go_forum/utils"
 	"github.com/stretchr/testify/require"
@@ -13,12 +14,19 @@ import (
 func createRandomUser(t *testing.T) User {
 	lengthOfName := 5
 	testName := utils.RandomString(lengthOfName)
+	email := utils.RandomString(10)
 
-	result, err := testQueries.CreateUser(context.Background(), testName)
+	args := CreateUserParams{
+		Username: testName,
+		Email:    email,
+		Password: "",
+	}
+
+	result, err := testQueries.CreateUser(context.Background(), args)
 	require.NoError(t, err)
 	require.NotEmpty(t, result)
 
-	require.Equal(t, testName, result.FullName)
+	require.Equal(t, testName, result.Username)
 	require.NotZero(t, result.ID)
 	require.NotZero(t, result.CreatedAt)
 
@@ -37,15 +45,18 @@ func TestGetUser(t *testing.T) {
 	require.NotEmpty(t, user2)
 
 	require.Equal(t, user1.ID, user2.ID)
-	require.Equal(t, user1.FullName, user2.FullName)
+	require.Equal(t, user1.Username, user2.Username)
 	require.Equal(t, user1.CreatedAt, user2.CreatedAt)
 }
 
 func TestUpdateUser(t *testing.T) {
 	user1 := createRandomUser(t)
 	args := UpdateUserParams{
-		ID:       user1.ID,
-		FullName: utils.RandomString(5),
+		ID:        user1.ID,
+		Username:  utils.RandomString(5),
+		Email:     utils.RandomString(10),
+		Password:  utils.RandomString(10),
+		UpdatedAt: time.Now().UTC(),
 	}
 
 	user2, err := testQueries.UpdateUser(context.Background(), args)
@@ -54,7 +65,12 @@ func TestUpdateUser(t *testing.T) {
 	require.NotEmpty(t, user2)
 
 	require.Equal(t, user1.ID, user2.ID)
-	require.Equal(t, args.FullName, user2.FullName)
+	require.Equal(t, args.Username, user2.Username)
+	require.Equal(t, args.Email, user2.Email)
+	require.Equal(t, args.Password, user2.Password)
+
+	// Check if the updated time is same as new time
+	require.WithinDuration(t, args.UpdatedAt, user2.UpdatedAt, time.Millisecond)
 	require.Equal(t, user1.CreatedAt, user2.CreatedAt)
 }
 

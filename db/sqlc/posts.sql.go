@@ -11,25 +11,27 @@ const createPost = `-- name: CreatePost :one
 INSERT INTO posts (
     user_id,
     title,
-    descr
+    content
 ) VALUES ($1, $2, $3)
-RETURNING id, user_id, title, descr, created_at
+RETURNING id, user_id, title, content, votes, updated_at, created_at
 `
 
 type CreatePostParams struct {
-	UserID int32  `json:"user_id"`
-	Title  string `json:"title"`
-	Descr  string `json:"descr"`
+	UserID  int32  `json:"user_id"`
+	Title   string `json:"title"`
+	Content string `json:"content"`
 }
 
 func (q *Queries) CreatePost(ctx context.Context, arg CreatePostParams) (Post, error) {
-	row := q.db.QueryRowContext(ctx, createPost, arg.UserID, arg.Title, arg.Descr)
+	row := q.db.QueryRowContext(ctx, createPost, arg.UserID, arg.Title, arg.Content)
 	var i Post
 	err := row.Scan(
 		&i.ID,
 		&i.UserID,
 		&i.Title,
-		&i.Descr,
+		&i.Content,
+		&i.Votes,
+		&i.UpdatedAt,
 		&i.CreatedAt,
 	)
 	return i, err
@@ -46,7 +48,7 @@ func (q *Queries) DeletePost(ctx context.Context, id int32) error {
 }
 
 const getPost = `-- name: GetPost :one
-SELECT id, user_id, title, descr, created_at FROM posts
+SELECT id, user_id, title, content, votes, updated_at, created_at FROM posts
 WHERE id = $1
 `
 
@@ -57,14 +59,16 @@ func (q *Queries) GetPost(ctx context.Context, id int32) (Post, error) {
 		&i.ID,
 		&i.UserID,
 		&i.Title,
-		&i.Descr,
+		&i.Content,
+		&i.Votes,
+		&i.UpdatedAt,
 		&i.CreatedAt,
 	)
 	return i, err
 }
 
 const listPosts = `-- name: ListPosts :many
-SELECT id, user_id, title, descr, created_at FROM posts
+SELECT id, user_id, title, content, votes, updated_at, created_at FROM posts
 ORDER BY created_at DESC
 LIMIT $1
 OFFSET $2
@@ -88,7 +92,9 @@ func (q *Queries) ListPosts(ctx context.Context, arg ListPostsParams) ([]Post, e
 			&i.ID,
 			&i.UserID,
 			&i.Title,
-			&i.Descr,
+			&i.Content,
+			&i.Votes,
+			&i.UpdatedAt,
 			&i.CreatedAt,
 		); err != nil {
 			return nil, err
@@ -105,7 +111,7 @@ func (q *Queries) ListPosts(ctx context.Context, arg ListPostsParams) ([]Post, e
 }
 
 const listPostsFromUser = `-- name: ListPostsFromUser :many
-SELECT id, user_id, title, descr, created_at FROM posts
+SELECT id, user_id, title, content, votes, updated_at, created_at FROM posts
 WHERE user_id = $1
 ORDER BY created_at DESC
 LIMIT $2
@@ -131,7 +137,9 @@ func (q *Queries) ListPostsFromUser(ctx context.Context, arg ListPostsFromUserPa
 			&i.ID,
 			&i.UserID,
 			&i.Title,
-			&i.Descr,
+			&i.Content,
+			&i.Votes,
+			&i.UpdatedAt,
 			&i.CreatedAt,
 		); err != nil {
 			return nil, err
@@ -150,25 +158,27 @@ func (q *Queries) ListPostsFromUser(ctx context.Context, arg ListPostsFromUserPa
 const updatePost = `-- name: UpdatePost :one
 UPDATE posts 
 SET title = $2,
-descr = $3
+content = $3
 WHERE id = $1 
-RETURNING id, user_id, title, descr, created_at
+RETURNING id, user_id, title, content, votes, updated_at, created_at
 `
 
 type UpdatePostParams struct {
-	ID    int32  `json:"id"`
-	Title string `json:"title"`
-	Descr string `json:"descr"`
+	ID      int32  `json:"id"`
+	Title   string `json:"title"`
+	Content string `json:"content"`
 }
 
 func (q *Queries) UpdatePost(ctx context.Context, arg UpdatePostParams) (Post, error) {
-	row := q.db.QueryRowContext(ctx, updatePost, arg.ID, arg.Title, arg.Descr)
+	row := q.db.QueryRowContext(ctx, updatePost, arg.ID, arg.Title, arg.Content)
 	var i Post
 	err := row.Scan(
 		&i.ID,
 		&i.UserID,
 		&i.Title,
-		&i.Descr,
+		&i.Content,
+		&i.Votes,
+		&i.UpdatedAt,
 		&i.CreatedAt,
 	)
 	return i, err

@@ -2,7 +2,7 @@
 INSERT INTO posts (
     user_id,
     title,
-    descr
+    content
 ) VALUES ($1, $2, $3)
 RETURNING *;
 
@@ -26,7 +26,7 @@ OFFSET $3;
 -- name: UpdatePost :one
 UPDATE posts 
 SET title = $2,
-descr = $3
+content = $3
 WHERE id = $1 
 RETURNING *;
 

@@ -17,8 +17,8 @@ func TestGetFeeds(t *testing.T) {
 	// when we query we can confirm that we are fetching
 	// the last posts from the db
 	for i := 0; i < 10; i++ {
-		like := createRandomLike(t)
-		postIDs = append(postIDs, like.PostID)
+		vote := createRandomVote(t)
+		postIDs = append(postIDs, vote.PostID)
 	}
 
 	// We will skip the first 5, then return the
@@ -54,7 +54,7 @@ func TestGetFeeds(t *testing.T) {
 		//
 		// Note : Tested it earlier so ignoring `error`
 		user, _ := store.GetUser(context.Background(), feed.Post.UserID)
-		require.Equal(t, user.FullName, feed.UserName)
+		require.Equal(t, user.Username, feed.UserName)
 	}
 
 }

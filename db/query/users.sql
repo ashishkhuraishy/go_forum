@@ -1,6 +1,6 @@
 -- name: CreateUser :one
-INSERT INTO users (full_name) 
-VALUES ($1)
+INSERT INTO users (username, email, password) 
+VALUES ($1, $2, $3)
 RETURNING *;
 
 -- name: GetUser :one
@@ -15,7 +15,10 @@ OFFSET $2;
 
 -- name: UpdateUser :one
 UPDATE users 
-SET full_name = $2
+SET username = $2,
+email = $3,
+password = $4,
+updated_at = $5
 WHERE id = $1 
 RETURNING *;
 
