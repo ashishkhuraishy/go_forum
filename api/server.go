@@ -2,24 +2,32 @@ package api
 
 import (
 	db "github.com/ashishkhuraishy/go_forum/db/sqlc"
+	"github.com/ashishkhuraishy/go_forum/utils"
+	"github.com/ashishkhuraishy/go_forum/utils/token"
 	"github.com/gin-gonic/gin"
 )
 
 type Server struct {
-	store  *db.Store
-	router *gin.Engine
+	store      *db.Store
+	tokenMaker token.Maker
+	router     *gin.Engine
 }
 
-func NewServer(store *db.Store) *Server {
+func NewServer(store *db.Store) (*Server, error) {
 	server := &Server{store: store}
 	router := gin.Default()
 
-	router.POST("/user", server.createUser)
-	router.GET("/user", server.listUsers)
-	router.GET("/user/:id", server.getUser)
+	tokenMaker, err := token.NewPasetoMaker(utils.RandomString(32))
+	if err != nil {
+		return nil, err
+	}
 
+	server.tokenMaker = tokenMaker
 	server.router = router
-	return server
+
+	createRoutes(router, server)
+
+	return server, nil
 }
 
 func (s *Server) Start(addess string) error {

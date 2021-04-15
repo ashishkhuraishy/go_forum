@@ -58,3 +58,16 @@ func TestGetFeeds(t *testing.T) {
 	}
 
 }
+
+func Benchmark(b *testing.B) {
+	store := NewStore(testDB)
+
+	for i := 0; i < b.N; i++ {
+		args := ListPostsParams{
+			Offset: 50,
+			Limit:  50,
+		}
+
+		store.GetFeeds(context.Background(), args)
+	}
+}
